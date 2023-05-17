@@ -1,8 +1,8 @@
 import { Component } from 'react';
-import { HiOutlineSearch } from "react-icons/hi";
-import { toast } from 'react-toastify';
+import { HiOutlineSearch } from 'react-icons/hi';
+import { toast } from 'react-hot-toast';
 
-export class Searchbar extends Component {
+export default class Searchbar extends Component {
   state = {
     searchName: '',
   };
@@ -13,29 +13,31 @@ export class Searchbar extends Component {
 
   handleSubmit = event => {
     event.preventDefault();
+    const { searchName } = this.state;
 
-    if(this.state.searchName.trim() === '') {
-        toast.error('Please, enter serch name!');
-        return;
-    };
+    if (searchName.trim() === '') {
+      return toast.error('Please, enter search name!');
+    }
 
-    this.props.onSubmit(this.state.searchName)
-    this.setState({ searchName: '', });
+    this.props.onSubmit(searchName);
+    this.setState({ searchName: '' });
   };
 
   render() {
+    const { searchName } = this.state;
+
     return (
       <header className="searchbar">
         <form onSubmit={this.handleSubmit} className="form">
           <button type="submit" className="button">
-           <HiOutlineSearch />
+            <HiOutlineSearch />
           </button>
 
           <input
             className="input"
             type="text"
             name="searchName"
-            value={this.state.searchName}
+            value={searchName}
             onChange={this.handleSearchNameChange}
             autoComplete="off"
             autoFocus
