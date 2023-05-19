@@ -2,8 +2,6 @@ import axios from 'axios';
 import { BASE_URL, API_KEY } from './constants';
 
  export const getImages = async (searchName, page) => {
-  console.log(`Searching for ${searchName} on page ${page}...`);
-
   const response = await axios.get(`${BASE_URL}/?`, {
     params: {
       key: API_KEY,

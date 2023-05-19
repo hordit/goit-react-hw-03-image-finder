@@ -1,15 +1,19 @@
-import  ImageGalleryItem  from 'components/ImageGalleryItem/ImageGalleryItem';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import { getImages } from 'services/api';
 import { HTTP_ERROR_MSG } from '../../services/constants';
 import { toast } from 'react-hot-toast';
 import { Button } from 'components/Button/Button';
-import { GallerySkeleton } from 'components/GallerySkeleton';
+import { UlGallery } from './ImageGallery.styled';
+import { Loader } from 'components/Loader/Loader';
 export default class ImageGallery extends Component {
   state = {
-    searchName: '',
     images: [],
+    searchName: '',
+    page: 1,
     loading: false,
+    loadingMore: false,
     error: '',
   };
 
@@ -18,72 +22,67 @@ export default class ImageGallery extends Component {
     const nextName = this.props.searchName;
 
     if (prevName !== nextName) {
-      this.loadImages();
-    }
-    const prevPage = prevProps.page;
-    const nextPage = this.props.page;
-    if (prevPage !== nextPage && nextPage > 1) {
-      this.loadImages();
+      try {
+        this.setState({ loading: true, images: [], page: 1, error: null });
+
+        const images = await getImages(nextName, 1);
+        this.setState({ images });
+
+        if (images.length === 0) {
+          return toast.error('No images found. Please enter another keyword');
+        }
+
+      } catch (error) {
+        this.setState({ error: HTTP_ERROR_MSG });
+      } finally {
+        this.setState({ loading: false });
+      }
     }
   }
 
-  loadImages = async () => {
-    const { searchName, page } = this.props;
+  handleLoadMore = async () => {
+    const { searchName } = this.props;
+    const nextPage = this.state.page + 1;
 
     try {
-      this.setState({ loading: true, images: [], error: null });
-      const images = await getImages(searchName, page);
-
-      if (images.length === 0) {
-        return toast.error('No images found. Please enter another keyword');
-      }
-
-      this.setState({ images });
-    } catch (error) {
-      this.setState({ error: HTTP_ERROR_MSG });
-    } finally {
-      this.setState({ loading: false });
-    }
-  };
-
-  loadMoreImages = async () => {
-    const { searchName, page } = this.props;
-
-    try {
-      this.setState({ loading: true, images: [], error: null });
-      const images = await getImages(searchName, page);
-
-      if (images.length === 0) {
-        return toast.error('No images found. Please enter another keyword');
-      }
-
+      this.setState({ loadingMore: true });
+      const images = await getImages(searchName, nextPage);
       this.setState(prevState => ({
         images: [...prevState.images, ...images],
+        page: nextPage,
       }));
     } catch (error) {
       this.setState({ error: HTTP_ERROR_MSG });
     } finally {
-      this.setState({ loading: false });
+      this.setState({ loadingMore: false });
     }
   };
 
   render() {
-    const { images, error, loading } = this.state;
-    const { handleLoadMore } = this.props;
+    const { images, loading, loadingMore, error } = this.state;
 
     return (
       <>
         {images && !loading && (
-          <ul>
+          <UlGallery>
             {images.map(image => (
-                <ImageGalleryItem key={image.id} {...image} />
+              <ImageGalleryItem key={image.id} {...image} />
             ))}
-          </ul>
+          </UlGallery>
         )}
-        {loading && <GallerySkeleton images={images} />}
+        {images.length >= 12 && !loading && (
+          <>
+          {loadingMore && <Loader />} 
+          <Button onClick={this.handleLoadMore} />
+          </>
+        )}
         {error && <div>{error}</div>}
-        {images.length > 0 && <Button onClick={handleLoadMore} />}
+        {loading && <Loader />}
       </>
     );
   }
 }
+
+ImageGallery.propTypes = {
+  searchName: PropTypes.string.isRequired,
+};

@@ -1,11 +1,20 @@
 import React, { Component } from 'react';
-import { Layout } from './Layout';
-import { GlobalStyle } from './GlobalStyles';
+import PropTypes from 'prop-types';
+import { GlobalStyle } from '../GlobalStyles';
 import { Toaster } from 'react-hot-toast';
-import Searchbar from './Searchbar/Searchbar';
-import ImageGallery from './ImageGallery/ImageGallery';
-import { GallerySkeleton } from './GallerySkeleton';
+import Searchbar from '../Searchbar/Searchbar';
+import ImageGallery from '../ImageGallery/ImageGallery';
+import { Loyout } from './App.styled';
+import { Loader } from 'components/Loader/Loader';
 export class App extends Component {
+  static propTypes = {
+    images: PropTypes.array,
+    page: PropTypes.number,
+    loading: PropTypes.bool,
+    searchName: PropTypes.string,
+    error: PropTypes.string,
+  };
+
   state = {
     searchName: '',
     images: [],
@@ -18,22 +27,6 @@ export class App extends Component {
     this.setState({ searchName: searchNewName, page: 1 });
   };
 
-  // openModal = (largeImageURL, tags) => {
-  //   this.setState(({ showModal }) => {
-  //     return { showModal: !showModal, largeImageURL, tags };
-  //   });
-  // };
-
-  handleLoadMore = () => {
-    this.setState(({ page }) => ({
-      page: page + 1,
-    }));
-  };
-
-  // toggleModal = () => {
-  //   this.setState(({ showModal }) => ({ showModal: !showModal }));
-  // };
-
   render() {
     const {
       images,
@@ -44,20 +37,19 @@ export class App extends Component {
     } = this.state;
 
     return (
-      <Layout>
+      <Loyout>
         <Searchbar onSubmit={this.handleFormSubmit} />
         {images && !loading && (
           <ImageGallery
             searchName={searchName}
-            handleLoadMore={this.handleLoadMore}
             page={page}
           />
         )}
-        {loading && <GallerySkeleton images={images} />}
         {error && <div>{error}</div>}
         <Toaster position="top-center" reverseOrder={true} />
+        {loading && <Loader />}
         <GlobalStyle />
-      </Layout>
+      </Loyout>
     );
   }
 }

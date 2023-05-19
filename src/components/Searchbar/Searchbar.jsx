@@ -1,6 +1,8 @@
+import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { HiOutlineSearch } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
+import { ButtonSubmit, Input, SearchForm, SearchbarHeader } from './Searchbar.styled';
 
 export default class Searchbar extends Component {
   state = {
@@ -27,13 +29,13 @@ export default class Searchbar extends Component {
     const { searchName } = this.state;
 
     return (
-      <header className="searchbar">
-        <form onSubmit={this.handleSubmit} className="form">
-          <button type="submit" className="button">
+      <SearchbarHeader className="searchbar">
+        <SearchForm onSubmit={this.handleSubmit} className="form">
+          <ButtonSubmit type="submit" className="button">
             <HiOutlineSearch />
-          </button>
+          </ButtonSubmit>
 
-          <input
+          <Input
             className="input"
             type="text"
             name="searchName"
@@ -43,8 +45,12 @@ export default class Searchbar extends Component {
             autoFocus
             placeholder="Search images and photos"
           />
-        </form>
-      </header>
+        </SearchForm>
+      </SearchbarHeader>
     );
   }
-}
+};
+
+Searchbar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
