@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { Loyout } from './App.styled';
 import { GlobalStyle } from '../GlobalStyles';
 import { Toaster } from 'react-hot-toast';
@@ -16,7 +15,6 @@ export class App extends Component {
     images: [],
     page: 1,
     loading: false,
-    loadingMore: false,
     error: '',
   };
 
@@ -56,19 +54,16 @@ export class App extends Component {
   };
 
   render() {
-    const { images, loading, loadingMore, error } = this.state;
+    const { images, loading, error } = this.state;
 
     return (
       <Loyout>
         <Searchbar onSubmit={this.handleFormSubmit} />
         {error && <div>{error}</div>}
         {images.length > 0 && <ImageGallery images={images} />}
-        {loading && !loadingMore && <Loader />}
-        {images.length >= 12 && (
-          <>
-            {loadingMore && <Loader />}
+        {loading && <Loader />}
+        {images.length >= 12 && !loading && (
             <Button onClick={this.handleLoadMore} />
-          </>
         )}
         <Toaster position="top-center" reverseOrder={true} />
         <GlobalStyle />
@@ -76,7 +71,3 @@ export class App extends Component {
     );
   }
 }
-
-App.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};

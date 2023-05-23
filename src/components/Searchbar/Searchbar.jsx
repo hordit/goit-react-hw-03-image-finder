@@ -9,7 +9,7 @@ export default class Searchbar extends Component {
     searchName: '',
   };
 
-  handleSearchNameChange = event => {
+ handleSearchNameChange = event => {
     this.setState({ searchName: event.currentTarget.value.toLowerCase() });
   };
 
