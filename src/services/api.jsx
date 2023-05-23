@@ -11,6 +11,6 @@ import { BASE_URL, API_KEY } from './constants';
       image_type: 'photo',
     },
   });
-  return response.data.hits;
+  return response.data;
 };
 

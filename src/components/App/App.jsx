@@ -15,6 +15,7 @@ export class App extends Component {
     images: [],
     page: 1,
     loading: false,
+    showBegin: false,
     error: '',
   };
 
@@ -24,16 +25,19 @@ export class App extends Component {
     const { searchName, page } = this.state;
 
     if (prevName !== searchName || prevPage !== page) {
-      try {
-        this.setState({ loading: true, error: '' });
-        const newImages = await getImages(searchName, page);
+      this.setState({ loading: true, error: '' });
 
-        if (!newImages.length) {
+      try {
+        const { totalHits, hits } = await getImages(searchName, page);
+
+        if (!hits.length) {
           return toast.error('No images found. Please enter another keyword');
         }
 
         this.setState(({ images }) => ({
-          images: [...images, ...newImages],
+          images: [...images, ...hits],
+          totalHits,
+          showBegin: page < Math.ceil(totalHits / 12),
         }));
       } catch (error) {
         this.setState({ error: HTTP_ERROR_MSG });
@@ -54,7 +58,7 @@ export class App extends Component {
   };
 
   render() {
-    const { images, loading, error } = this.state;
+    const { images, loading, showBegin, error } = this.state;
 
     return (
       <Loyout>
@@ -62,9 +66,7 @@ export class App extends Component {
         {error && <div>{error}</div>}
         {images.length > 0 && <ImageGallery images={images} />}
         {loading && <Loader />}
-        {images.length >= 12 && !loading && (
-            <Button onClick={this.handleLoadMore} />
-        )}
+        {showBegin && <Button onClick={this.handleLoadMore} />}
         <Toaster position="top-center" reverseOrder={true} />
         <GlobalStyle />
       </Loyout>
